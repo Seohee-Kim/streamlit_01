@@ -173,41 +173,52 @@ def main():
         st.text('요약')
         example(temp_tb_meta, 'CPM', 'CPC', 'CPV', 'CTR', 'VTR')
         
+        
         # 표 영역
         st.subheader(" ")
         st.subheader("효율 찾기")
         st.info('선택하는 컬럼에 대한 효율 및 수치를 확인할 수 있습니다. (pivot)')
-        # 데이터 필터링
-        if sub_option_media != '전체':
-            temp_tb_meta = temp_tb_meta[temp_tb_meta['media_name'] == sub_option_media]
-        if sub_option_device != '전체':
-            temp_tb_meta = temp_tb_meta[temp_tb_meta['device'] == sub_option_device]
-
-        # ***명사 컬럼과 수치 컬럼 선택 부분을 나란히 표시***
-        col1, col2 = st.columns(2)
         
-        with col1:
-            grouping_columns = st.multiselect("기준 컬럼을 선택하세요.",
-                                              options=['account_name', 'campaign_name', 'adgroup_name',
-                                                       'media_name', 'platform_position', 'device'],
-                                              default=['media_name', 'platform_position'])
+        # ***명사 컬럼과 수치 컬럼 선택 부분을 form으로 그룹화하여 표 위에 위치***
+        with st.form(key='my_form'):
+            col1, col2, col3 = st.columns([6, 6, 1])  # 세 번째 컬럼의 비율을 작게 설정하여 오른쪽에 버튼 배치
+            
+            with col1:
+                grouping_columns = st.multiselect("기준 컬럼을 선택하세요.",
+                                                options=['account_name', 'campaign_name', 'adgroup_name',
+                                                        'media_name', 'platform_position', 'device'],
+                                                default=['media_name', 'platform_position'])
+            
+            with col2:
+                metric_columns = st.multiselect("수치 컬럼을 선택하세요.",
+                                                options=['CPM', 'CPC', 'CPV', 'CTR', 'VTR',
+                                                        'clicks', 'impressions', 'reach', 'frequency',
+                                                        'view_p25', 'view_p50', 'view_p75', 'view_p100',
+                                                        'spend'],
+                                                default=['CPM', 'CTR', 'impressions', 'clicks', 'spend'])
+
+            with col3:
+                # st.write("")  # 버튼을 아래로 내리기 위한 빈 줄
+                st.markdown("<div style='height: 27px;'></div>", unsafe_allow_html=True)  # 30px 만큼의 공간을 추가
+                submit_button = st.form_submit_button(label='적용')  # 버튼을 오른쪽에 배치
+
+
+        # 기본 값 설정
+        default_grouping_columns = ['media_name', 'platform_position']
+        default_metric_columns = ['CPM', 'CTR', 'impressions', 'clicks', 'spend']
+
+        # 기본적으로 데이터프레임을 먼저 보여줌
+        grouped_df = temp_tb_meta.groupby(default_grouping_columns)[default_metric_columns].mean().reset_index()
+        dataframe_placeholder = st.dataframe(grouped_df.head(100).style.hide(axis='index'), use_container_width=True)
+
+        # 사용자가 "적용" 버튼을 눌렀을 때만 데이터프레임을 업데이트
+        if submit_button:
+            if grouping_columns and metric_columns:
+                grouped_df = temp_tb_meta.groupby(grouping_columns)[metric_columns].mean().reset_index()
+                dataframe_placeholder.dataframe(grouped_df.head(100).style.hide(axis='index'), use_container_width=True)
+            else:
+                st.write("기준 컬럼과 수치 컬럼을 선택하세요.")
         
-        with col2:
-            metric_columns = st.multiselect("수치 컬럼을 선택하세요.",
-                                            options=['CPM', 'CPC', 'CPV', 'CTR', 'VTR',
-                                                     'clicks', 'impressions', 'reach', 'frequency',
-                                                     'view_p25', 'view_p50', 'view_p75', 'view_p100',
-                                                     'spend'],
-                                            default=['CPM', 'CTR', 'impressions', 'clicks', 'spend'])
-
-        # 선택된 명사 컬럼에 따라 데이터 그룹핑 및 수치 컬럼을 집계
-        if grouping_columns:
-            grouped_df = temp_tb_meta.groupby(grouping_columns)[metric_columns].mean().reset_index()
-
-            # 데이터프레임을 표시하되, 인덱스를 숨기고 최대 100개 행만 표시
-            st.dataframe(grouped_df.head(100).style.hide(axis='index'), use_container_width=True)  # 인덱스 숨김, 최대 100행 표시, 전체 가로폭 사용
-        else:
-            st.write(" ")
 
         st.subheader(" ")
         st.subheader("영역입니당")
