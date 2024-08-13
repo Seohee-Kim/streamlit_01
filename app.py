@@ -6,10 +6,10 @@ import pymysql
 import matplotlib.pyplot as plt
 import plotly.express as px
 # !pip install --force-reinstall --no-deps bokeh==2.4.3
-from bokeh.plotting import figure
-from bokeh.models import ColumnDataSource
-from bokeh.palettes import Category20
-from bokeh.models import HoverTool
+# from bokeh.plotting import figure
+# from bokeh.models import ColumnDataSource
+# from bokeh.palettes import Category20
+# from bokeh.models import HoverTool
 
 # 데이터베이스 연결 정보
 host = '121.78.124.75'
