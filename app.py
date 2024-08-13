@@ -108,8 +108,11 @@ def plot_pie_chart(data, column_name, color_theme='Plotly'):
         value_column = column_name
     top_5 = data_to_plot.nlargest(5, value_column)
     others = data_to_plot.iloc[5:].sum(numeric_only=True)[value_column]
+    # if others > 0:
+    #     top_5 = top_5.append(pd.DataFrame({column_name: ['etc'], value_column: [others]}), ignore_index=True)
     if others > 0:
-        top_5 = top_5.append(pd.DataFrame({column_name: ['etc'], value_column: [others]}), ignore_index=True)
+        etc_df = pd.DataFrame({column_name: ['etc'], value_column: [others]})
+        top_5 = pd.concat([top_5, etc_df], ignore_index=True)
     color_palettes = {
         'Plotly': px.colors.qualitative.Plotly,
         'Viridis': px.colors.sequential.Viridis,
