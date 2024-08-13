@@ -12,11 +12,18 @@ import plotly.express as px
 # from bokeh.models import HoverTool
 
 # 데이터베이스 연결 정보
-host = '121.78.124.75'
-user = 'dmcmedia'
-password = 'DuFaj3fa#G4q'
-database = 'dmc_ad_data'
+# host = '121.78.124.75'
+# user = 'dmcmedia'
+# password = 'DuFaj3fa#G4q'
+# database = 'dmc_ad_data'
+# port = 3308
+
+host = '218.48.70.16'
+user = 'server2'
+password = 'epdlxjakzpxld!'
+database = 'dcdb_server2'
 port = 3308
+
 
 st.set_page_config(layout="wide")
 
