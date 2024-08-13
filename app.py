@@ -213,8 +213,44 @@ def main():
         with col4:
             st.write("네 번째 영역")
 
-        # *** st.bokeh_chart를 사용하여 year_month와 수치 데이터를 시각화 ***
-        # year_month 기준으로 수치 데이터 시각화
+        # # *** st.bokeh_chart를 사용하여 year_month와 수치 데이터를 시각화 ***
+        # # year_month 기준으로 수치 데이터 시각화
+        # st.subheader("수치 데이터를 시각화")
+        # selected_metrics = st.multiselect(
+        #     "수치 컬럼을 선택하세요 (year_month 기준으로 시각화)",
+        #     options=['CPM', 'CPC', 'CPV', 'CTR', 'VTR'],
+        #     default=['CPM']
+        # )
+
+        # if selected_metrics:
+        #     # year_month를 x축으로 설정하고 그룹화하여 평균 계산
+        #     temp_tb_meta['year_month'] = pd.to_datetime(temp_tb_meta['year_month'])
+        #     grouped_data = temp_tb_meta.groupby('year_month')[selected_metrics].mean().reset_index()
+        #     grouped_data = grouped_data.sort_values('year_month')
+
+        #     # Bokeh 시각화 준비
+        #     p = figure(x_axis_type="datetime", title="수치 데이터 시각화 (year_month 기준)", height=400, width=900)
+        #     p.xaxis.axis_label = 'Year/Month'
+        #     p.yaxis.axis_label = 'Value'
+            
+        #     colors = Category20[20]  # 최대 20개 색상 제공
+        #     for i, metric in enumerate(selected_metrics):
+        #         p.line(grouped_data['year_month'], grouped_data[metric], legend_label=metric, line_width=2, color=colors[i % 20])
+        #         p.circle(grouped_data['year_month'], grouped_data[metric], color=colors[i % 20], size=5)
+
+        #     # HoverTool 추가
+        #     hover = HoverTool()
+        #     hover.tooltips = [("Year/Month", "@x{%F}"), ("Value", "@y")]
+        #     hover.formatters = {'@x': 'datetime'}
+        #     p.add_tools(hover)
+
+        #     p.legend.location = "top_left"
+        #     p.legend.click_policy = "hide"  # 클릭으로 선 숨기기
+
+        #     # Bokeh 차트 출력
+        #     st.bokeh_chart(p, use_container_width=True)
+        
+        # Bokeh 시각화 준비 대신 Plotly를 사용하여 year_month와 수치 데이터를 시각화
         st.subheader("수치 데이터를 시각화")
         selected_metrics = st.multiselect(
             "수치 컬럼을 선택하세요 (year_month 기준으로 시각화)",
@@ -228,27 +264,23 @@ def main():
             grouped_data = temp_tb_meta.groupby('year_month')[selected_metrics].mean().reset_index()
             grouped_data = grouped_data.sort_values('year_month')
 
-            # Bokeh 시각화 준비
-            p = figure(x_axis_type="datetime", title="수치 데이터 시각화 (year_month 기준)", height=400, width=900)
-            p.xaxis.axis_label = 'Year/Month'
-            p.yaxis.axis_label = 'Value'
-            
-            colors = Category20[20]  # 최대 20개 색상 제공
-            for i, metric in enumerate(selected_metrics):
-                p.line(grouped_data['year_month'], grouped_data[metric], legend_label=metric, line_width=2, color=colors[i % 20])
-                p.circle(grouped_data['year_month'], grouped_data[metric], color=colors[i % 20], size=5)
+            # Plotly 시각화 준비
+            fig = px.line(grouped_data, x='year_month', y=selected_metrics,
+                        title="수치 데이터 시각화 (year_month 기준)",
+                        labels={'year_month': 'Year/Month', 'value': 'Value'})
 
-            # HoverTool 추가
-            hover = HoverTool()
-            hover.tooltips = [("Year/Month", "@x{%F}"), ("Value", "@y")]
-            hover.formatters = {'@x': 'datetime'}
-            p.add_tools(hover)
+            # 스타일링 추가
+            fig.update_layout(
+                xaxis_title="Year/Month",
+                yaxis_title="Value",
+                legend_title="Metrics",
+                height=400,
+                width=900,
+                margin=dict(l=20, r=20, t=50, b=20)
+            )
 
-            p.legend.location = "top_left"
-            p.legend.click_policy = "hide"  # 클릭으로 선 숨기기
-
-            # Bokeh 차트 출력
-            st.bokeh_chart(p, use_container_width=True)
+            # Plotly 차트 출력
+            st.plotly_chart(fig, use_container_width=True)
 
 
     elif menu == '메뉴2':
