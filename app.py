@@ -5,6 +5,7 @@ from streamlit_extras.metric_cards import style_metric_cards
 import pandas as pd
 import pymysql
 import matplotlib.pyplot as plt
+import matplotlib.colors as mcolors
 import plotly.express as px
 import json
 # !pip install --force-reinstall --no-deps bokeh==2.4.3
@@ -12,8 +13,7 @@ import json
 # from bokeh.models import ColumnDataSource
 # from bokeh.palettes import Category20
 # from bokeh.models import HoverTool
-import matplotlib.pyplot as plt
-import matplotlib.colors as mcolors
+
 
 
 # *** 레이아웃 및 스타일 ***
@@ -281,7 +281,7 @@ def main():
         #         st.write("기준 컬럼과 수치 컬럼을 선택하세요.")
                 
         # 디폴트 데이터프레임
-        grouped_df = temp_tb_meta.groupby(grouping_columns_default)[metric_columns_default].mean().reset_index()
+        grouped_df = temp_tb_meta.groupby(grouping_columns_default)[metric_columns_default].mean().fillna(0).reset_index() #fillna
 
         # 히트맵
         # 원하는 색상으로 히트맵을 만들기 위한 컬러 맵 생성
