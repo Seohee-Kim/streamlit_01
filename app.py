@@ -212,14 +212,9 @@ def main():
         
         # *** 데이터 ***
         tb_meta = call_data('tb_meta', target_db)
-        temp_tb_meta = tb_meta.copy()
-        
-        # temp_tb_meta = temp_tb_meta.fillna(0)  # NaN 값을 0으로 대체하고 새로운 변수에 할당
-        # temp_tb_meta.replace('NaN', 0, inplace=True)  # 'NaN' 문자열을 0으로 대체
-        # temp_tb_meta.replace([None, 'NaN'], 0, inplace=True)  # None과 'NaN'을 0으로 대체
-        # temp_tb_meta = temp_tb_meta.applymap(lambda x: 0 if pd.isnull(x) else x)  # 모든 NaN 및 None 값을 0으로 대체
-        # temp_tb_meta['CTR'] = pd.to_numeric(temp_tb_meta['CTR'], errors='coerce').fillna(0)
-        
+        temp_tb_meta = tb_meta.copy()        
+        temp_tb_meta = temp_tb_meta.fillna(0).replace([np.inf, -np.inf], 0)
+
         # *** 사이드바 - 셀렉박스 영역 ***
         selected_media_name = side_selectbox(temp_tb_meta, 'media_name', '미디어 선택')
         selected_platform_position = side_selectbox(temp_tb_meta, 'platform_position', '게재위치 선택')
@@ -283,7 +278,7 @@ def main():
                 
         # 디폴트 데이터프레임
         grouped_df = temp_tb_meta.groupby(grouping_columns_default)[metric_columns_default].mean().fillna(0).reset_index() #fillna
-        grouped_df.replace([np.inf, -np.inf], 0)
+        grouped_df = grouped_df.replace([np.inf, -np.inf], 0)
 
         # 히트맵
         # 원하는 색상으로 히트맵을 만들기 위한 컬러 맵 생성
