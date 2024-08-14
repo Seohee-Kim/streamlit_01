@@ -3,6 +3,7 @@ import streamlit as st
 from streamlit_option_menu import option_menu
 from streamlit_extras.metric_cards import style_metric_cards
 import pandas as pd
+import numpy as np
 import pymysql
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
@@ -282,6 +283,7 @@ def main():
                 
         # 디폴트 데이터프레임
         grouped_df = temp_tb_meta.groupby(grouping_columns_default)[metric_columns_default].mean().fillna(0).reset_index() #fillna
+        grouped_df.replace([np.inf, -np.inf], 0)
 
         # 히트맵
         # 원하는 색상으로 히트맵을 만들기 위한 컬러 맵 생성
