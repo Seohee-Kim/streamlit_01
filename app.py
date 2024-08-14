@@ -102,7 +102,7 @@ def fig_metricCard(data, column_names): # 컬럼 이름을 리스트로 전달, 
     cols = st.columns(len(column_names))
 
     for i, col_name in enumerate(column_names):
-        avg_value = data[col_name].median()
+        avg_value = data[col_name].mean()
         cols[i].metric(label=col_name, value=round(avg_value, 1), delta=0)
 
     style_metric_cards()
@@ -165,11 +165,18 @@ def fig_pieChart(data, column_name, color_theme='Custom'):
     st.plotly_chart(fig, use_container_width=True)
     
 
-# *** 사이드 셀렉박스 ***
-def side_selectbox(data, colname, input_title):
-    options = ['전체'] + data[colname].unique().tolist()
-    result = st.sidebar.selectbox(input_title, options, index=0)
-    return result
+# # *** 사이드 단일-셀렉박스 ***
+# def side_selectbox(data, colname, input_title):
+#     options = ['전체'] + data[colname].unique().tolist()
+#     result = st.sidebar.selectbox(input_title, options, index=0)
+#     return result
+
+
+# *** 사이드 체크박스 (복수 선택 가능) ***
+def side_checkbox(data, colname, input_title):
+    unique_options = data[colname].unique().tolist()
+    selected_options = st.sidebar.multiselect(input_title, unique_options)
+    return selected_options
 
 
 # *** 메인 함수 ***
@@ -215,18 +222,40 @@ def main():
         temp_tb_meta = tb_meta.copy()        
         temp_tb_meta = temp_tb_meta.fillna(0).replace([np.inf, -np.inf], 0)
 
-        # *** 사이드바 - 셀렉박스 영역 ***
-        selected_media_name = side_selectbox(temp_tb_meta, 'media_name', '미디어 선택')
-        selected_platform_position = side_selectbox(temp_tb_meta, 'platform_position', '게재위치 선택')
-        selected_device = side_selectbox(temp_tb_meta, 'device', '기기 선택')
+        # # *** 사이드바 - 셀렉박스 영역 ***
+        # selected_media_name = side_selectbox(temp_tb_meta, 'media_name', '미디어 선택')
+        # selected_platform_position = side_selectbox(temp_tb_meta, 'platform_position', '게재위치 선택')
+        # selected_device = side_selectbox(temp_tb_meta, 'device', '기기 선택')
         
-        if selected_media_name != '전체':
-            temp_tb_meta = temp_tb_meta[temp_tb_meta['media_name'] == selected_media_name]
-        if selected_platform_position != '전체':
-            temp_tb_meta = temp_tb_meta[temp_tb_meta['platform_position'] == selected_platform_position]
-        if selected_device != '전체':
-            temp_tb_meta = temp_tb_meta[temp_tb_meta['device'] == selected_device]
+        # if selected_media_name != '전체':
+        #     temp_tb_meta = temp_tb_meta[temp_tb_meta['media_name'] == selected_media_name]
+        # if selected_platform_position != '전체':
+        #     temp_tb_meta = temp_tb_meta[temp_tb_meta['platform_position'] == selected_platform_position]
+        # if selected_device != '전체':
+        #     temp_tb_meta = temp_tb_meta[temp_tb_meta['device'] == selected_device]
         
+
+        # *** 사이드바 - 체크박스 영역 ***
+        selected_year_months = side_checkbox(temp_tb_meta, 'year_month', '날짜 선택')
+        selected_inds_names = side_checkbox(temp_tb_meta, 'inds_name', '업종 선택')
+        selected_media_names = side_checkbox(temp_tb_meta, 'media_name', '미디어 선택')
+        selected_adproduct_names = side_checkbox(temp_tb_meta, 'adproduct_name', '광고상품 선택')
+        selected_platform_positions = side_checkbox(temp_tb_meta, 'platform_position', '게재위치 선택')
+        selected_devices = side_checkbox(temp_tb_meta, 'device', '기기 선택')
+        
+        # 사이드바 필터 즉시 적용
+        if selected_year_months:
+            temp_tb_meta = temp_tb_meta[temp_tb_meta['year_month'].isin(selected_year_months)]
+        if selected_inds_names:
+            temp_tb_meta = temp_tb_meta[temp_tb_meta['inds_name'].isin(selected_inds_names)]
+        if selected_media_names:
+            temp_tb_meta = temp_tb_meta[temp_tb_meta['media_name'].isin(selected_media_names)]
+        if selected_adproduct_names:
+            temp_tb_meta = temp_tb_meta[temp_tb_meta['adproduct_name'].isin(selected_adproduct_names)]
+        if selected_platform_positions:
+            temp_tb_meta = temp_tb_meta[temp_tb_meta['platform_position'].isin(selected_platform_positions)]
+        if selected_devices:
+            temp_tb_meta = temp_tb_meta[temp_tb_meta['device'].isin(selected_devices)]
         
         # *** 본문 ***
         st.header("메타 대시보드")
@@ -282,7 +311,7 @@ def main():
 
         # 히트맵
         # 원하는 색상으로 히트맵을 만들기 위한 컬러 맵 생성
-        colors = ["#ffffff", "#BFB9FF"]
+        colors = ["#f6f5ff", "#BFB9FF"]
         
         cmap_CustomMap = mcolors.LinearSegmentedColormap.from_list("CustomMap", colors)
         
